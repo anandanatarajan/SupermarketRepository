@@ -123,6 +123,14 @@ namespace SupermarketRepository
         /// <param name="args"></param>
         /// <returns></returns>
         object ExecutScalar(string sql, params object[] args) ;
+        /// <summary>
+        /// passing pure sql query with specified class
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        IEnumerable<T> SelectBySQL<T>(string sql) where T : class, new();
+
 
     }
 }

@@ -1,6 +1,7 @@
 ﻿using NPoco;
 using NPoco.Expressions;
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -172,11 +173,24 @@ namespace SupermarketRepository
             string argcount = "";
             for (int i = 0; i < args.Length; i++)
             {
-                argcount += "@" + i.ToString();
+                argcount += "@" + i.ToString()  + ",";
             }
+            argcount = argcount.TrimEnd(',');
+            
             var sql= ";exec " + spname + " " + argcount;
             return db.Fetch<T>(sql, args);
         }
+        /// <summary>
+        /// send plain sql query
+        /// </summary>
+        /// <typeparam name="T">return class type</typeparam>
+        /// <param name="sql"></param>
+        /// <returns>list of return class</returns>
+        public IEnumerable<T> SelectBySQL<T>(string sql) where T : class, new()
+        {
+            return db.Query<T>(sql);
+        }
+
         /// <summary>
         /// return single object pertains to where condition
         /// </summary>
@@ -220,6 +234,8 @@ namespace SupermarketRepository
         {
             return db.Update(item, UpdatebleFields);
         }
+
+        
 
         
     }

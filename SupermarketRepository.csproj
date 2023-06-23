@@ -6,10 +6,26 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <ApplicationIcon>server.ico</ApplicationIcon>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>CRUD For NPOCO</Title>
+    <Description>A simple crud utility for npoco</Description>
+    <PackageProjectUrl>https://github.com/anandanatarajan/SupermarketRepository</PackageProjectUrl>
+    <PackageIcon>edit.png</PackageIcon>
+    <RepositoryUrl>https://github.com/anandanatarajan/SupermarketRepository</RepositoryUrl>
+    <PackageTags>database;npoco;crud;.net</PackageTags>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="server.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Anandanatarajan\Pictures\edit.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
