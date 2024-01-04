@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using NPoco;
+using System.Linq.Expressions;
 
 namespace SupermarketRepository
 {
@@ -130,7 +131,12 @@ namespace SupermarketRepository
         /// <param name="sql"></param>
         /// <returns></returns>
         IEnumerable<T> SelectBySQL<T>(string sql) where T : class, new();
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T">class model</typeparam>
+        /// <returns>paged results</returns>
+        public Page<T> GetPage<T>(int startpage,int pagesize,string sql) where T : class, new();
 
     }
 }

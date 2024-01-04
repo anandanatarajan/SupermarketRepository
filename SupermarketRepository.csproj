@@ -13,9 +13,14 @@
     <PackageIcon>edit.png</PackageIcon>
     <RepositoryUrl>https://github.com/anandanatarajan/SupermarketRepository</RepositoryUrl>
     <PackageTags>database;npoco;crud;.net</PackageTags>
-    <AssemblyVersion>1.0.0.1</AssemblyVersion>
-    <FileVersion>1.0.0.1</FileVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>$(AssemblyVersion)</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="HomeController.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="server.ico" />

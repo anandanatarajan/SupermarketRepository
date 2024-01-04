@@ -10,9 +10,11 @@ namespace SupermarketRepository
     /// <summary>
 /// A kind of single repository pattern implementation
 /// </summary>
-    public partial class CRUDRepository : ICurdSuperMarketSQL
+    public partial class CRUDRepository : ICurdSuperMarketSQL,IDisposable
     {
         private readonly IDatabase db;
+        private bool disposedValue;
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -20,6 +22,7 @@ namespace SupermarketRepository
         public CRUDRepository(Database db)
         {
             this.db = db;
+            
         }
         /// <summary>
         /// Add new item to the table based on class
@@ -234,10 +237,49 @@ namespace SupermarketRepository
         {
             return db.Update(item, UpdatebleFields);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="startpage"></param>
+        /// <param name="pagesize"></param>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public Page<T> GetPage<T>(int startpage, int pagesize, string sql) where T : class, new()
+        {
+            return db.Page<T>(startpage, pagesize, sql);
+        }
 
-        
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                    db.Dispose();
+                }
 
-        
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~CRUDRepository()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        void IDisposable.Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
     /// <summary>
     /// Extension to generate where condition
