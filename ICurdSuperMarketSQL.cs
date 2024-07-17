@@ -123,7 +123,7 @@ namespace SupermarketRepository
         /// <param name="sql"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        object ExecutScalar(string sql, params object[] args) ;
+        object ExecuteScalar(string sql, params object[] args) ;
         /// <summary>
         /// passing pure sql query with specified class
         /// </summary>

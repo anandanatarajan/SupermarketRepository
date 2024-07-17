@@ -8,9 +8,9 @@ using System.Text;
 namespace SupermarketRepository
 {
     /// <summary>
-/// A kind of single repository pattern implementation
-/// </summary>
-    public partial class CRUDRepository : ICurdSuperMarketSQL,IDisposable
+    /// A kind of single repository pattern implementation more like a facade pattern for npoco
+    /// </summary>
+    public partial class CRUDRepository : ICurdSuperMarketSQL, IDisposable
     {
         private readonly IDatabase db;
         private bool disposedValue;
@@ -23,6 +23,7 @@ namespace SupermarketRepository
         {
             this.db = db;
             
+            
         }
         /// <summary>
         /// Add new item to the table based on class
@@ -32,42 +33,49 @@ namespace SupermarketRepository
         /// <returns>if sucess returns positive int else return -1/0</returns>
         public int AddNew<T>(T item) where T : class, new()
         {
-            
-            var obj = db.Insert(item);
-            int retval;
-            if (obj == null)
+            using (var transaction = db.GetTransaction())
             {
-                retval = -1;
+                var obj = db.Insert(item);
+                transaction.Complete();
+                int retval=-1;
+                if (obj == null)
+                {
+                    retval = -1;
+                }
+                else
+                {
+                    retval = Convert.ToInt32(obj);
+                }
+                return retval;
             }
-            else
-            {
-                retval = Convert.ToInt32(obj);
-            }
-            return retval;
         }
+        
         /// <summary>
         /// Add a list of items to the database works like bulk copy command
         /// </summary>
         /// <typeparam name="T">dbobject (class)</typeparam>
-        /// <param name="item">List of db object (class)</param>
+        /// <param name="Items">List of db object (class)</param>
         /// <exception cref="ApplicationException">Throws generated exception and rollback operation</exception>
-        public void BulkAdd<T>(List<T> item) where T : class, new()
+        public void BulkAdd<T>(List<T> Items) where T : class, new()
         {
             InsertBulkOptions options = new()
             {
                 BulkCopyTimeout = 30
             };
-            try
+            using (var transaction = db.GetTransaction())
             {
+                try
+                {
 
-                db.BeginTransaction();
-                db.InsertBulk<T>(item, options);
-                db.CompleteTransaction();
-            }
-            catch (Exception ex)
-            {
-                db.Transaction.Rollback();
-                throw new ApplicationException("Bulk Addition Failed Operation Rolled Back ", ex);
+                    
+                    db.InsertBulk<T>(Items, options);
+                    transaction.Complete();
+                }
+                catch (Exception ex)
+                {
+                    db.Transaction.Rollback();
+                    throw new ApplicationException("Bulk Addition Failed. Operation Rolled Back. ", ex);
+                }
             }
         }
         /// <summary>
@@ -84,15 +92,15 @@ namespace SupermarketRepository
         /// Delete a record Permanently from table based on where condition 
         /// </summary>
         /// <typeparam name="T">table object(class)</typeparam>
-        /// <param name="wherecondt">where condition like id=1 and name="abcd"</param>
+        /// <param name="Wherecondition">where condition like id=1 and name="abcd"</param>
         /// <returns>Success returns postive int else failure</returns>
-        
-        public int Delete<T>(string wherecondt) where T : class, new()
+
+        public int Delete<T>(string Wherecondition) where T : class, new()
         {
-            return db.DeleteWhere<T>(wherecondt);
+            return db.DeleteWhere<T>(Wherecondition);
         }
         /// <summary>
-        /// sql query with optional arguments as param array
+        /// sql query with optional arguments as param array for insert delete and update purpose
         /// </summary>
         /// <typeparam name="T">class-table object </typeparam>
         /// <param name="sql">sql query as string</param>
@@ -103,13 +111,13 @@ namespace SupermarketRepository
             return db.Execute(sql, args);
         }
         /// <summary>
-        /// 
+        /// for selecting aggregate functions to a field
         /// </summary>
         
         /// <param name="sql"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public object ExecutScalar(string sql, params object[] args) 
+        public object ExecuteScalar(string sql, params object[] args) 
         {
             return db.ExecuteScalar<object>(sql, args);
         }
@@ -204,6 +212,7 @@ namespace SupermarketRepository
         {           
          
             return db.Query<T>().Where(expression).FirstOrDefault();
+            
         }
         /// <summary>
         /// update a single object fetched and returned 
@@ -213,7 +222,14 @@ namespace SupermarketRepository
         /// <returns>updated record count</returns>
         public int Update<T>(T item) where T : class, new()
         {
-            return db.Update(item);
+            // return db.Update(item);
+            using (var transaction = db.GetTransaction())
+            {
+                var retval = db.Update(item);
+                transaction.Complete();
+               
+                return retval;
+            }
         }
         /// <summary>
         /// update object based on primary key
@@ -224,7 +240,14 @@ namespace SupermarketRepository
         /// <returns>int update record count</returns>
         public int Update<T>(object pk, T item) where T : class, new()
         {
-            return db.Update(item, pk);
+            // return db.Update(item, pk);
+            using (var transaction = db.GetTransaction())
+            {
+                var retval = db.Update(item,pk);
+                transaction.Complete();
+
+                return retval;
+            }
         }
         /// <summary>
         /// update particular fileds based on string array provide name of fields only
@@ -235,7 +258,14 @@ namespace SupermarketRepository
         /// <returns>int update record count</returns>
         public int Update<T>(T item, string[] UpdatebleFields) where T : class, new()
         {
-            return db.Update(item, UpdatebleFields);
+            // return db.Update(item, UpdatebleFields);
+            using (var transaction = db.GetTransaction())
+            {
+                var retval = db.Update(item,UpdatebleFields);
+                transaction.Complete();
+
+                return retval;
+            }
         }
         /// <summary>
         /// 
@@ -250,7 +280,10 @@ namespace SupermarketRepository
         {
             return db.Page<T>(startpage, pagesize, sql);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -258,7 +291,7 @@ namespace SupermarketRepository
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects)
-                    db.Dispose();
+                    db?.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -300,7 +333,6 @@ namespace SupermarketRepository
             {
                 if (prop != null)
                 {
-
 
                     var val = prop.GetValue(myclass, null);
                     if (val != null)
