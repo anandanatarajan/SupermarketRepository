@@ -26,6 +26,10 @@ namespace SupermarketRepository
         /// Gets or sets the db provider factory.
         /// </summary>
         public DbProviderFactory? DbProviderFactory { get; set; }
+        /// <summary>
+        /// set logging on or off for sql commands from npoco
+        /// </summary>
+        public bool LogSQLCommands { get; set; } = false;
 
     }
     /// <summary>
@@ -98,16 +102,14 @@ namespace SupermarketRepository
         {
 
             db = new Database(options.ConnectionString!, options.DatabaseType!, options.DbProviderFactory!);
+            LogLastCommand=options.LogSQLCommands;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DBClass"/> class.
-        /// </summary>
-        /// <param name="lastCommand">The last command.</param>
-        public DBClass(string? lastCommand)
-        {
-            LastCommand = lastCommand;
-        }
+        
+        //public DBClass(string? lastCommand)
+        //{
+        //    LastCommand = lastCommand;
+        //}
 
         /// <summary>
         /// Disposes the.
@@ -736,11 +738,11 @@ namespace SupermarketRepository
         /// <param name="sql">The sql.</param>
         /// <param name="args">The args.</param>
         /// <returns>An object.</returns>
-        public object ExecuteScalar<T>(string sql, params object[] args) where T : class, new()
+        public object ExecuteScalar<T>(string sql, params object[] args) where T: new()
         {
             try
             {
-                var returnedItems = db.ExecuteScalar<T>(sql, args);
+                var returnedItems = db.ExecuteScalar<object>(sql, args);
                 return returnedItems;
             }
             catch

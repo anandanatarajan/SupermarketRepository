@@ -13,8 +13,8 @@
     <PackageIcon>edit.png</PackageIcon>
     <RepositoryUrl>https://github.com/anandanatarajan/SupermarketRepository</RepositoryUrl>
     <PackageTags>database;npoco;crud;.net</PackageTags>
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
+    <AssemblyVersion>3.0.0.1</AssemblyVersion>
+    <FileVersion>3.0.0.1</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

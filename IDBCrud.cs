@@ -119,7 +119,7 @@ namespace SupermarketRepository
         /// <param name="sql"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        object ExecuteScalar<T>(string sql, params object[] args) where T : class, new();
+        object ExecuteScalar<T>(string sql, params object[] args) where T : new();
        /// <summary>
        /// 
        /// </summary>
