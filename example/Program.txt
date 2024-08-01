@@ -1,0 +1,9 @@
+  var conn= builder.Configuration.GetConnectionString("connsql");
+  builder.Services.AddDBClassWithOptions(config =>
+                {
+                    config.ConnectionString = conn;
+                    config.DbProviderFactory = Microsoft.Data.SqlClient.SqlClientFactory.Instance;
+                    config.DatabaseType = NPoco.DatabaseType.SqlServer2012;
+                    config.LogSQLCommands = true;
+                    
+                });
