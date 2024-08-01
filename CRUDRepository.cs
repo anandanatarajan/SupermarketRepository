@@ -92,7 +92,7 @@ namespace SupermarketRepository
         /// </summary>
         public string? LastCommand { get; set; }
 
-
+        public bool UseExperimentalFeature { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DBClass"/> class.
@@ -103,6 +103,7 @@ namespace SupermarketRepository
 
             db = new Database(options.ConnectionString!, options.DatabaseType!, options.DbProviderFactory!);
             LogLastCommand=options.LogSQLCommands;
+            UseExperimentalFeature=false;
         }
 
         
@@ -203,19 +204,23 @@ namespace SupermarketRepository
         /// <param name="item">The item.</param>
         
         /// <returns>A Task.</returns>
-        public int AddNew<T>(T item) where T : class, new()
+        public object AddNew<T>(T item) where T : class, new()
         {
 
             try
             {
                 using (var transaction = db.GetTransaction())
                 {
+                    if (UseExperimentalFeature)
+                        Incrementor.Increment(item, db);
+                    
                     var obj = db.Insert(item);
                     transaction.Complete();
                     int retval = -1;
                     if (obj != null)
                     {
-                        retval = Convert.ToInt32(obj);
+                        // retval = Convert.ToInt32(obj);
+                        return obj;
                     }
                     return retval;
                 }
@@ -237,7 +242,7 @@ namespace SupermarketRepository
         /// <param name="item">The item.</param>
         /// <param name="token">The token.</param>
         /// <returns>A Task.</returns>
-        public async Task<int> AddNewAsync<T>(T item, CancellationToken token) where T : class, new()
+        public async Task<object> AddNewAsync<T>(T item, CancellationToken token) where T : class, new()
         {
             try
             {
@@ -247,12 +252,16 @@ namespace SupermarketRepository
                 }
                 using (var transaction = db.GetTransaction())
                 {
+                    if (UseExperimentalFeature)
+                        Incrementor.Increment(item, db);
+                    
                     var obj = await db.InsertAsync(item);
                     transaction.Complete();
                     int retval = -1;
                     if (obj != null)
                     {
-                        retval = Convert.ToInt32(obj);
+                        //retval = Convert.ToInt32(obj);
+                        return obj;
                     }
                     return retval;
                 }
@@ -888,4 +897,5 @@ namespace SupermarketRepository
         /// </summary>
         public object Value;
     }
+
 }

@@ -15,7 +15,7 @@ namespace SupermarketRepository
         /// <typeparam name="T"></typeparam>
         /// <param name="item"></param>
         /// <returns></returns>
-        int AddNew<T>(T item) where T : class, new();
+        object AddNew<T>(T item) where T : class, new();
         /// <summary>
         /// Add a list of items to the database works like bulk copy command
         /// </summary>
@@ -136,7 +136,7 @@ namespace SupermarketRepository
        /// <param name="item"></param>
        /// <param name="token"></param>
        /// <returns></returns>
-        Task<int> AddNewAsync<T>(T item, CancellationToken token) where T : class, new();
+        Task<object> AddNewAsync<T>(T item, CancellationToken token) where T : class, new();
         /// <summary>
         /// 
         /// </summary>

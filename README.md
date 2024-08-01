@@ -9,3 +9,19 @@ added async properties and updated to new class.
 
 updated 12:19 26-07-2024
 execute scalar function is updated to accomodate objects
+
+updated 13:13 01-08-2024
+modified addnew and addnewasync to return object instead of integer 
+possible usecase if primarykey is string it will return that object
+in options added loggin so it can injected directly in startup or program.cs
+an example is uploaded to git for most of the features
+
+### experimental features
+*************************************************************
+added a custom attribute
+SuperAutoIncrementAttribute 
+this will enable autoincrement of a non identity field.
+
+you can enable this by making the bool value true for property UseExperimentalFeature which is false by default
+proceed with caution at your own risk
+**********************************************************************************
