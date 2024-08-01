@@ -228,7 +228,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Bulk Addition Failed. Operation Rolled Back. ", ex);
+                throw new ApplicationException("Add New Record Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
