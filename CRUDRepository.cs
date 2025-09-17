@@ -67,8 +67,10 @@ namespace SupermarketRepository
         }
     }
 
+
+
     /// <summary>
-    /// The d b class.
+    /// The db class.
     /// </summary>
     public class DBClass : IDBCrud, IDisposable
     {
@@ -91,8 +93,22 @@ namespace SupermarketRepository
         /// Gets or sets the last command.
         /// </summary>
         public string? LastCommand { get; set; }
-
+        /// <summary>
+        /// helps to create auto increment fields based on max value in the table
+        /// </summary>
         public bool UseExperimentalFeature { get; set; }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DBClass"/> class.
+        /// </summary>
+        public DBClass(IDatabase database)
+        {
+            db= (Database)database ?? throw new ArgumentNullException();
+            LogLastCommand = false;
+            UseExperimentalFeature = false;
+
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DBClass"/> class.
@@ -107,10 +123,7 @@ namespace SupermarketRepository
         }
 
         
-        //public DBClass(string? lastCommand)
-        //{
-        //    LastCommand = lastCommand;
-        //}
+      
 
         /// <summary>
         /// Disposes the.
@@ -269,7 +282,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Bulk Addition Failed. Operation Rolled Back. ", ex);
+                throw new ApplicationException("Addition Failed. Operation Rolled Back. ", ex);
             }
             finally
             {

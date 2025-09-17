@@ -13,8 +13,8 @@
     <PackageIcon>edit.png</PackageIcon>
     <RepositoryUrl>https://github.com/anandanatarajan/SupermarketRepository</RepositoryUrl>
     <PackageTags>database;npoco;crud;.net</PackageTags>
-    <AssemblyVersion>3.0.0.4</AssemblyVersion>
-    <FileVersion>3.0.0.4</FileVersion>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -22,7 +22,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="example\**" />
+    <EmbeddedResource Remove="example\**" />
+    <None Remove="example\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="CRUDRepositoryOld.cs" />
     <Compile Remove="HomeController.cs" />
+    <Compile Remove="ICurdSuperMarketSQL.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,8 +45,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="NPoco" Version="5.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+    <PackageReference Include="NPoco" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
