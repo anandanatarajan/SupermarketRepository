@@ -145,5 +145,70 @@ namespace SupermarketRepository
         /// <param name="valueFieldName"></param>
         /// <returns></returns>
         List<MyDropdownItems> GetDropdownItems<T>(string textFieldName, string valueFieldName) where T : class, new();
+
+        // Add these async methods to IDBCrud
+        /// <summary>
+        /// async select all
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        Task<List<T>> SelectAllAsync<T>(CancellationToken token) where T : class, new();
+
+        /// <summary>
+        /// update async method
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        Task<int> UpdateAsync<T>(T item, CancellationToken token) where T : class, new();
+
+        /// <summary>
+        /// update async method with primary key
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="item"></param>
+        /// <param name="UpdatebleFields"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        Task<int> UpdateAsync<T>(T item, IEnumerable<string> UpdatebleFields, CancellationToken token) where T : class, new();
+
+        /// <summary>
+        /// execute async method
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql"></param>
+        /// <param name="token"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        Task<int> ExecuteAsync<T>(string sql, CancellationToken token, params object[] args) where T : class, new();
+        // Database access
+        /// <summary>
+        /// Get the underlying NPoco database instance for advanced operations
+        /// </summary>
+        /// <returns></returns>
+        IDatabase GetDatabase();
+
+        // Helper methods for mail triggering
+        /// <summary>
+        /// trigger mail event
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        DBClass TriggerMail(bool result);
+        /// <summary>
+        /// get command for logging purpose
+        /// </summary>
+        event EventHandler<DbCommandEventArgs> GetCommand;
+        /// <summary>
+        /// Occurs when a request is made to send mail.
+        /// </summary>
+        /// <remarks>The event provides a boolean value indicating whether the mail sending request is
+        /// approved. Subscribers can handle this event to perform actions before the mail is sent or to cancel the
+        /// operation.</remarks>
+        event EventHandler<bool> MailSendingRequested;
+
+
     }
 }
