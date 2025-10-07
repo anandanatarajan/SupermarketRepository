@@ -104,7 +104,8 @@ namespace SupermarketRepository
         /// </summary>
         public DBClass(IDatabase database)
         {
-            db= (Database)database ?? throw new ArgumentNullException();
+                       
+            db = (Database)database ?? throw new ArgumentNullException(nameof(database),"Database is null");
             LogLastCommand = false;
             UseExperimentalFeature = false;
 
@@ -145,12 +146,7 @@ namespace SupermarketRepository
             }
         }
 
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~DBClass()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
+      
 
         /// <summary>
         /// Disposes the.
@@ -232,7 +228,7 @@ namespace SupermarketRepository
                     int retval = -1;
                     if (obj != null)
                     {
-                        // retval = Convert.ToInt32(obj);
+                        
                         return obj;
                     }
                     return retval;
@@ -241,7 +237,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Add New Record Failed. Operation Rolled Back. ", ex);
+                throw new InvalidOperationException ("Add New Record Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -263,26 +259,31 @@ namespace SupermarketRepository
                 {
                     throw new OperationCanceledException();
                 }
-                using (var transaction = db.GetTransaction())
+                using (var transaction = db.GetTransactionAsync())
                 {
                     if (UseExperimentalFeature)
                         Incrementor.Increment(item, db);
                     
                     var obj = await db.InsertAsync(item);
-                    transaction.Complete();
+                    await transaction.Result.CompleteAsync();
                     int retval = -1;
                     if (obj != null)
                     {
-                        //retval = Convert.ToInt32(obj);
-                        return obj;
+                       var type = obj.GetType();
+                        if (type == typeof(int) || type == typeof(long) || type == typeof(short))
+                        {
+                            return Convert.ToInt32(obj);
+                        }
+                            
+                            return obj;
                     }
                     return retval;
                 }
             }
             catch (Exception ex)
             {
-                db?.Transaction?.Rollback();
-                throw new ApplicationException("Addition Failed. Operation Rolled Back. ", ex);
+                await db?.Transaction?.RollbackAsync (CancellationToken.None);
+                throw new InvalidOperationException("Addition Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -314,7 +315,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Bulk Addition Failed. Operation Rolled Back. ", ex);
+                throw new InvalidOperationException("Bulk Addition Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -344,7 +345,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Update Failed. Operation Rolled Back. ", ex);
+                throw new InvalidOperationException("Update Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -358,7 +359,7 @@ namespace SupermarketRepository
         /// <param name="item">The item.</param>
         /// <param name="token">The token.</param>
         /// <returns>A Task.</returns>
-        public Task<int> UpdateAsync<T>(T item, CancellationToken token) where T : class, new()
+        public async Task<int> UpdateAsync<T>(T item, CancellationToken token) where T : class, new()
         {
 
             try
@@ -367,18 +368,18 @@ namespace SupermarketRepository
                 {
                     throw new OperationCanceledException();
                 }
-                using (var transaction = db.GetTransaction())
+                using (var transaction = db.GetTransactionAsync())
                 {
-                    var retval = db.UpdateAsync(item);
-                    transaction.Complete();
+                    var retval = await db.UpdateAsync(item);
+                    await transaction.Result.CompleteAsync(token);
 
                     return retval;
                 }
             }
             catch (Exception ex)
             {
-                db?.Transaction?.Rollback();
-                throw new ApplicationException("Update Failed. Operation Rolled Back. ", ex);
+                db?.Transaction?.RollbackAsync();
+                throw new InvalidOperationException("Update Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -408,7 +409,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Update Failed. Operation Rolled Back. ", ex);
+                throw new InvalidOperationException("Update Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -440,7 +441,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Update Failed. Operation Rolled Back. ", ex);
+                throw new InvalidOperationException("Update Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -476,7 +477,7 @@ namespace SupermarketRepository
             catch (Exception ex)
             {
                 db?.Transaction?.Rollback();
-                throw new ApplicationException("Update Failed. Operation Rolled Back. ", ex);
+                throw new InvalidOperationException("Update Failed. Operation Rolled Back. ", ex);
             }
             finally
             {
@@ -511,16 +512,26 @@ namespace SupermarketRepository
         /// <summary>
         /// Deletes the.
         /// </summary>
-        /// <param name="Wherecondition">The wherecondition.</param>
-        /// <returns>An int.</returns>
-        public int Delete<T>(string Wherecondition) where T : class, new()
+        /// <param name="wherecondt">The wherecondition.</param>
+        /// <param name="Soft">If true, soft delete else hard delete.</param>
+        /// <returns>An int. -1 if operation failed</returns>
+        public int Delete<T>(string wherecondt, bool Soft = false) where T : class, new()
         {
             try
             {
-                int? ret = db?.DeleteWhere<T>(Wherecondition);
-                return ret ?? -1;
+                if (!Soft)
+                {
+                    int? ret = db?.DeleteWhere<T>(wherecondt);
+                    return ret ?? -1;
+                }
+                else
+                {
+                    T? oT = Activator.CreateInstance<T>();
+                    int? ret = db?.UpdateWhere<T>(oT,wherecondt);
+                    return ret ?? -1;
+                }
             }
-            catch
+            catch 
             {
                 throw;
             }
@@ -800,6 +811,34 @@ namespace SupermarketRepository
             }
         }
 
+        /// <summary>
+        /// Updates the where.
+        /// </summary>
+        /// <param name="Wherecondition">The wherecondition.</param>
+        /// <param name="item">The item.</param>
+        /// <param name="args">The args.</param>
+        /// <returns>An int.</returns>
+        public int UpdateWhere<T>(string Wherecondition, T item,params object[] args) where T : class, new()
+        {
+            try
+            {
+                using var transaction = db.GetTransaction();
+                var retval = db.UpdateWhere(item, Wherecondition,args);
+                transaction.Complete();
+                return retval;
+            }
+            catch (Exception ex)
+            {
+                db?.Transaction?.Rollback();
+                throw new InvalidOperationException("Update Failed. Operation Rolled Back. ", ex);
+            }
+            finally
+            {
+                Logdetails();
+            }
+        }
+
+        
 
         /// <summary>
         /// 
@@ -854,6 +893,8 @@ namespace SupermarketRepository
             }
             return "";
         }
+
+       
     }
     /// <summary>
     /// Extension to generate where condition

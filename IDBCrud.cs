@@ -59,8 +59,9 @@ namespace SupermarketRepository
         /// </summary>
         /// <typeparam name="T">table object(class)</typeparam>
         /// <param name="wherecondt">where condition as express</param>
+        /// <param name="Soft">true for soft delete false for hard delete</param>
         /// <returns>Success returns postive int else failure</returns>
-        int Delete<T>(string wherecondt) where T : class, new();
+        int Delete<T>(string wherecondt,bool Soft=false) where T : class, new();
         /// <summary>
         /// select all available records
         /// </summary>
@@ -208,7 +209,13 @@ namespace SupermarketRepository
         /// approved. Subscribers can handle this event to perform actions before the mail is sent or to cancel the
         /// operation.</remarks>
         event EventHandler<bool> MailSendingRequested;
+        /// <summary>
+        /// Updates based on where condition.
+        /// </summary>
+        /// <returns>An int.</returns>
+        int UpdateWhere<T>(string Wherecondition, T item, params object[] args) where T : class, new();
 
+        
 
     }
 }
